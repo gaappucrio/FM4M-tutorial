@@ -35,6 +35,14 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+⚠️ Troubleshooting: Dependency Conflicts
+If you encounter a dependency resolution error regarding networkx and scikit-image (e.g., scikit-image 0.26.0 requires networkx>=3.0, but you have networkx 2.8.8), this happens because the graph-based models in FM4M strictly require networkx 2.8.8, while newer versions of scikit-image demand 3.0+.
+
+To fix this, simply downgrade scikit-image to a compatible version by running:
+
+Bash
+pip install "scikit-image<0.23"
+
 ### 5. Install Torch-Scatter
 The FM4M project requires `torch-scatter`, which needs to be compiled specifically for your PyTorch and CUDA versions. 
 
