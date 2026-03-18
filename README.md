@@ -105,29 +105,38 @@ score = fm4m.multi_modal(model_list=["SELFIES-TED","MHG-GED","SMI-TED"], x_train
 
 The easiest approach is to use FM4M-Kit through a web UI. While the official instance is available on Hugging Face Space, you can also run the interface locally. If you downloaded the `app.py` file to run the GUI on your WSL 2 environment, follow these specific steps to resolve common dependency and network access issues:
 
-**Step 1: Install UI-Specific Dependencies**
-The default `requirements.txt` focuses on core modeling packages. To run the web interface locally, you must manually install Gradio and RDKit (which resolves the `rdkit.Contrib.SA_Score` module error):
+**Step 1: Install UI-Specific Dependencies & Pin PyTorch Version**
+The default `requirements.txt` installs older dependencies. However, the Web UI relies on Hugging Face libraries that strictly require PyTorch 2.4 or higher. To avoid compilation errors on newer Python versions, pin PyTorch exactly to version `2.4.0`:
+
 ```bash
+# Install PyTorch 2.4.0 exactly to prevent torch-scatter build errors
+pip install "torch==2.4.0" torchvision torchaudio
+
+# Install UI packages (Gradio and RDKit)
 pip install gradio rdkit
-```
+Step 2: Reinstall Torch-Scatter
+Because torch-scatter is strictly bound to your PyTorch version, you must reinstall it to match PyTorch 2.4.0. (The example below uses cu121 for CUDA 12.1. Replace it with your specific CUDA version like cu118 or cpu if necessary).
 
-**Step 2: Expose the Local Server to Windows**
-By default, Gradio apps run on `127.0.0.1` inside Linux, which your Windows browser might not be able to reach. You need to bind the server to `0.0.0.0` to expose it to your host machine.
+⚠️ Note: Copy the command below exactly as plain text. Avoid copying rich-text link formatting to prevent terminal parsing errors.
 
-Open the `app.py` file in your code editor and modify the final launch command at the bottom of the script:
-```python
+Bash
+# Force reinstall torch-scatter pointing exactly to the 2.4.0 wheel
+pip install --force-reinstall torch-scatter -f [https://data.pyg.org/whl/torch-2.4.0+cu121.html](https://data.pyg.org/whl/torch-2.4.0+cu121.html)
+Step 3: Expose the Local Server to Windows
+By default, Gradio apps run on 127.0.0.1 inside Linux, which your Windows browser might not be able to reach. You need to bind the server to 0.0.0.0 to expose it to your host machine.
+
+Open the app.py file in your code editor and modify the final launch command at the bottom of the script:
+
+Python
 # Change this:
 demo.launch() 
 
 # To this:
 demo.launch(server_name="0.0.0.0")
-```
-
-**Step 3: Run the Application**
+Step 4: Run the Application
 Since the application is built with Gradio, do not use Streamlit commands. Run the script directly with Python:
-```bash
-python app.py
-```
 
-**Step 4: Access the UI**
-Once the terminal indicates the server is running, open your Windows web browser and navigate to `http://localhost:7860` (or the specific port displayed in your terminal output).
+Bash
+python app.py
+Step 5: Access the UI
+Once the terminal indicates the server is running, open your Windows web browser and navigate to http://localhost:7860 (or the specific port displayed in your terminal output).
