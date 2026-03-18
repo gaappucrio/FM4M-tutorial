@@ -50,6 +50,7 @@ First, verify your CUDA version by running:
 ```bash
 python -c "import torch; print(torch.version.cuda)"
 (If your output is 12.1, you will use cu121. Map your output accordingly: 11.8 ➡️ cu118, None ➡️ cpu, etc.)
+```
 
 Then, install torch-scatter by exporting your PyTorch version to a variable and passing your mapped CUDA version (e.g., cu121) in the URL. This two-step method prevents parsing errors in terminals like zsh:
 
