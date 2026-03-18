@@ -1,3 +1,5 @@
+Para acessar o tutorial original da IBM: https://github.com/IBM/materials
+
 # 🚀 Getting Started with FM4M (Pyenv / WSL 2 Edition)
 
 Welcome to the setup guide for IBM’s multi-modal foundation model for materials, FM4M. This guide adapts the original Conda instructions to use **pyenv** and **pyenv-virtualenv** on an Ubuntu WSL 2 environment.
