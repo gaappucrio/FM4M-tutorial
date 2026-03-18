@@ -142,6 +142,11 @@ demo.launch(server_name="0.0.0.0")
 Step 4: Run the Application
 Since the application is built with Gradio, do not use Streamlit commands. Run the script directly with Python:
 
+⚠️Before running app upgrade xgboost
+```bash
+pip install --upgrade xgboost
+```
+
 ```bash
 python app.py
 ```
