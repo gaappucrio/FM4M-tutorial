@@ -46,12 +46,19 @@ pip install "scikit-image<0.23"
 ### 5. Install Torch-Scatter
 The FM4M project requires `torch-scatter`, which needs to be compiled specifically for your PyTorch and CUDA versions. 
 
-> **⚠️ Important:** You must replace `${CUDA}` with the specific version that matches your WSL 2 PyTorch installation (e.g., `cpu`, `cu118`, `cu124`, `cu126`, `cu128`, or `cu129`).
-
+First, verify your CUDA version by running:
 ```bash
-# Replace ${CUDA} before running!
-pip install torch-scatter -f [https://data.pyg.org/whl/torch-$(python](https://data.pyg.org/whl/torch-$(python) -c "import torch; print(torch.__version__.split('+')[0])")+${CUDA}.html
-```
+python -c "import torch; print(torch.version.cuda)"
+(If your output is 12.1, you will use cu121. Map your output accordingly: 11.8 ➡️ cu118, None ➡️ cpu, etc.)
+
+Then, install torch-scatter by exporting your PyTorch version to a variable and passing your mapped CUDA version (e.g., cu121) in the URL. This two-step method prevents parsing errors in terminals like zsh:
+
+Bash
+# Extract PyTorch version
+TORCH_VER=$(python -c "import torch; print(torch.__version__.split('+')[0])")
+
+# Install torch-scatter (Replace cu121 with your specific CUDA version)
+pip install torch-scatter -f "[https://data.pyg.org/whl/torch-$](https://data.pyg.org/whl/torch-$){TORCH_VER}+cu121.html"
 
 ---
 
