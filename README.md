@@ -111,17 +111,23 @@ The default `requirements.txt` installs older dependencies. However, the Web UI 
 ```bash
 # Install PyTorch 2.4.0 exactly to prevent torch-scatter build errors
 pip install "torch==2.4.0" torchvision torchaudio
+```
 
 # Install UI packages (Gradio and RDKit)
+```bash
 pip install gradio rdkit
+```
+
 Step 2: Reinstall Torch-Scatter
+
 Because torch-scatter is strictly bound to your PyTorch version, you must reinstall it to match PyTorch 2.4.0. (The example below uses cu121 for CUDA 12.1. Replace it with your specific CUDA version like cu118 or cpu if necessary).
 
 ⚠️ Note: Copy the command below exactly as plain text. Avoid copying rich-text link formatting to prevent terminal parsing errors.
 
-Bash
 # Force reinstall torch-scatter pointing exactly to the 2.4.0 wheel
+```bash
 pip install --force-reinstall torch-scatter -f [https://data.pyg.org/whl/torch-2.4.0+cu121.html](https://data.pyg.org/whl/torch-2.4.0+cu121.html)
+```
 Step 3: Expose the Local Server to Windows
 By default, Gradio apps run on 127.0.0.1 inside Linux, which your Windows browser might not be able to reach. You need to bind the server to 0.0.0.0 to expose it to your host machine.
 
@@ -136,7 +142,8 @@ demo.launch(server_name="0.0.0.0")
 Step 4: Run the Application
 Since the application is built with Gradio, do not use Streamlit commands. Run the script directly with Python:
 
-Bash
+```bash
 python app.py
+```
 Step 5: Access the UI
 Once the terminal indicates the server is running, open your Windows web browser and navigate to http://localhost:7860 (or the specific port displayed in your terminal output).
