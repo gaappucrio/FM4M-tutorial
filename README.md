@@ -30,6 +30,11 @@ pyenv local fm4m
 ```
 *(Alternatively, you can activate it manually by running `pyenv activate fm4m`).*
 
+### Clone the original repository
+```bash
+git clone https://github.com/IBM/materials.git
+```
+
 ### 4. Install Required Packages
 With your `fm4m` environment active, upgrade pip and install the standard project dependencies listed in the `requirements.txt` file:
 ```bash
