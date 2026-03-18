@@ -109,7 +109,7 @@ The easiest approach is to use FM4M-Kit through a web UI available on Hugging Fa
 If you are cloning the Space or running the UI code locally via Gradio/Streamlit inside your WSL 2 terminal, you might face issues accessing the `localhost` URL from your Windows browser. Follow these steps to fix it:
 
 1. **Verify Environment:** Ensure your terminal shows `(fm4m)` indicating the pyenv environment is active.
-2. **Install streamlit:** ```bash pip install streamlit```
+2. **Install required extensions:** ```bash pip install gradio rdkit```
 3. **Expose the Host:** By default, local UIs bind to `127.0.0.1`. In WSL 2, you need to bind it to `0.0.0.0` to access it from Windows. 
    * If running a script, append the host argument (e.g., `python app.py --server.address 0.0.0.0` or edit the Gradio `launch(server_name="0.0.0.0")` parameters).
 4. **Access from Windows:** Open your Windows web browser and navigate to `http://localhost:<PORT>` (usually `7860` for Gradio or `8501` for Streamlit).
