@@ -54,13 +54,13 @@ python -c "import torch; print(torch.version.cuda)"
 
 Then, install torch-scatter by exporting your PyTorch version to a variable and passing your mapped CUDA version (e.g., cu121) in the URL. This two-step method prevents parsing errors in terminals like zsh:
 
-Bash
+```bash
 # Extract PyTorch version
 TORCH_VER=$(python -c "import torch; print(torch.__version__.split('+')[0])")
 
 # Install torch-scatter (Replace cu121 with your specific CUDA version)
 pip install torch-scatter -f "[https://data.pyg.org/whl/torch-$](https://data.pyg.org/whl/torch-$){TORCH_VER}+cu121.html"
-
+```
 ---
 
 ## 💻 Usages
