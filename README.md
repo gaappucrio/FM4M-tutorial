@@ -101,15 +101,33 @@ For multi-modal model evaluation (e.g., `smi-ted`, `mhg-ged`, and `selfies-ted`)
 score = fm4m.multi_modal(model_list=["SELFIES-TED","MHG-GED","SMI-TED"], x_train=xtrain, y_train=ytrain, x_test=xtest, y_test=ytest, downstream_model="DefaultClassifier") #
 ```
 
-### 3-3. Web UI (WSL 2 Local Setup)
+### 3-3. Web UI (Local WSL 2 Setup)
 
-The easiest approach is to use FM4M-Kit through a web UI available on Hugging Face Space. This intuitive interface allows you to access FM4M-Kit functions, including data selection, model building, training for downstream tasks, and basic result visualization.
+The easiest approach is to use FM4M-Kit through a web UI. While the official instance is available on Hugging Face Space, you can also run the interface locally. If you downloaded the `app.py` file to run the GUI on your WSL 2 environment, follow these specific steps to resolve common dependency and network access issues:
 
-**🛠️ Running the UI Locally inside WSL 2:**
-If you are cloning the Space or running the UI code locally via Gradio/Streamlit inside your WSL 2 terminal, you might face issues accessing the `localhost` URL from your Windows browser. Follow these steps to fix it:
+**Step 1: Install UI-Specific Dependencies**
+The default `requirements.txt` focuses on core modeling packages. To run the web interface locally, you must manually install Gradio and RDKit (which resolves the `rdkit.Contrib.SA_Score` module error):
+```bash
+pip install gradio rdkit
+```
 
-1. **Verify Environment:** Ensure your terminal shows `(fm4m)` indicating the pyenv environment is active.
-2. **Install required extensions:** ```bash pip install gradio rdkit```
-3. **Expose the Host:** By default, local UIs bind to `127.0.0.1`. In WSL 2, you need to bind it to `0.0.0.0` to access it from Windows. 
-   * If running a script, append the host argument (e.g., `python app.py --server.address 0.0.0.0` or edit the Gradio `launch(server_name="0.0.0.0")` parameters).
-4. **Access from Windows:** Open your Windows web browser and navigate to `http://localhost:<PORT>` (usually `7860` for Gradio or `8501` for Streamlit).
+**Step 2: Expose the Local Server to Windows**
+By default, Gradio apps run on `127.0.0.1` inside Linux, which your Windows browser might not be able to reach. You need to bind the server to `0.0.0.0` to expose it to your host machine.
+
+Open the `app.py` file in your code editor and modify the final launch command at the bottom of the script:
+```python
+# Change this:
+demo.launch() 
+
+# To this:
+demo.launch(server_name="0.0.0.0")
+```
+
+**Step 3: Run the Application**
+Since the application is built with Gradio, do not use Streamlit commands. Run the script directly with Python:
+```bash
+python app.py
+```
+
+**Step 4: Access the UI**
+Once the terminal indicates the server is running, open your Windows web browser and navigate to `http://localhost:7860` (or the specific port displayed in your terminal output).
