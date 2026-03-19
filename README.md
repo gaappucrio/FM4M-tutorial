@@ -30,125 +30,132 @@ pyenv local fm4m
 ```
 *(Alternatively, you can activate it manually by running `pyenv activate fm4m`).*
 
-### Clone the original repository
+### 4. Clone the original repository
 ```bash
-git clone https://github.com/IBM/materials.git
+git clone [https://github.com/IBM/materials.git](https://github.com/IBM/materials.git)
+cd materials
 ```
 
-### 4. Install Required Packages
-With your `fm4m` environment active, upgrade pip and install the standard project dependencies listed in the `requirements.txt` file:
+### 5. Install Required Packages & Fix Dependencies
+With your `fm4m` environment active, upgrade pip and install the dependencies. 
+
+*Note: The Web UI requires modern Hugging Face libraries that strictly depend on PyTorch >= 2.4.0. We will pin PyTorch to `2.4.0` immediately to avoid compiling errors later.*
+
 ```bash
 pip install --upgrade pip
+
+# 1. Pin PyTorch to satisfy Web UI requirements
+pip install "torch==2.4.0" torchvision torchaudio
+
+# 2. Install the standard requirements
 pip install -r requirements.txt
+
+# 3. Install Web UI specific packages and update xgboost to prevent Python 3.12+ errors
+pip install gradio rdkit ipykernel transformers selfies
+pip install --upgrade xgboost
 ```
 
-⚠️ Troubleshooting: Dependency Conflicts
-If you encounter a dependency resolution error regarding networkx and scikit-image (e.g., scikit-image 0.26.0 requires networkx>=3.0, but you have networkx 2.8.8), this happens because the graph-based models in FM4M strictly require networkx 2.8.8, while newer versions of scikit-image demand 3.0+.
+> **⚠️ Troubleshooting: Dependency Conflicts**
+> If you encounter a dependency resolution error regarding `networkx` and `scikit-image` (e.g., scikit-image 0.26.0 requires networkx>=3.0, but you have networkx 2.8.8), this happens because the graph-based models in FM4M strictly require networkx 2.8.8, while newer versions of scikit-image demand 3.0+.
+> 
+> To fix this, simply downgrade `scikit-image` to a compatible version by running:
+> ```bash
+> pip install "scikit-image<0.23"
+> ```
 
-To fix this, simply downgrade scikit-image to a compatible version by running:
+### 6. Install Torch-Scatter
+The FM4M project requires `torch-scatter`, which needs to be compiled specifically for your PyTorch and CUDA versions. Because we pinned PyTorch to `2.4.0`, we must use the exact wheel for that version.
 
-Bash
-pip install "scikit-image<0.23"
+*(The example below uses `cu121` for CUDA 12.1. Replace it with your specific CUDA version like `cu118` or `cpu` if necessary).*
 
-### 5. Install Torch-Scatter
-The FM4M project requires `torch-scatter`, which needs to be compiled specifically for your PyTorch and CUDA versions. 
+> **⚠️ Note:** Copy the command below exactly as plain text. Avoid copying rich-text link formatting to prevent terminal parsing errors.
 
-First, verify your CUDA version by running:
 ```bash
-python -c "import torch; print(torch.version.cuda)"
-(If your output is 12.1, you will use cu121. Map your output accordingly: 11.8 ➡️ cu118, None ➡️ cpu, etc.)
+pip install --force-reinstall torch-scatter -f [https://data.pyg.org/whl/torch-2.4.0+cu121.html](https://data.pyg.org/whl/torch-2.4.0+cu121.html)
 ```
 
-Then, install torch-scatter by exporting your PyTorch version to a variable and passing your mapped CUDA version (e.g., cu121) in the URL. This two-step method prevents parsing errors in terminals like zsh:
-
-```bash
-# Extract PyTorch version
-TORCH_VER=$(python -c "import torch; print(torch.__version__.split('+')[0])")
-
-# Install torch-scatter (Replace cu121 with your specific CUDA version)
-pip install torch-scatter -f "[https://data.pyg.org/whl/torch-$](https://data.pyg.org/whl/torch-$){TORCH_VER}+cu121.html"
-```
 ---
 
 ## 💻 Usages
 
 Once your `pyenv` environment is fully set up and active, you have three main ways to utilize FM4M:
 
-### 3-1. Individual model access
-One way to utilize FM4M is by accessing each uni-modal model individually. Within each model’s folder (e.g., SMI-TED), you’ll find comprehensive documentation and example notebooks to guide effective usage. This approach allows users to explore and apply each model’s specific functions in detail.
+### 3-1. Individual model access & Hugging Face Migration
+One way to utilize FM4M is by accessing each uni-modal model individually. Within each model’s folder (e.g., SMI-TED), you’ll find comprehensive documentation and example notebooks to guide effective usage. 
+
+> **🚨 CRITICAL UPDATE: Outdated GitHub Examples & Hugging Face Migration**
+> The original `.pkl` checkpoint files, `load.py`, and `embedding.py` scripts mentioned in the model-specific READMEs (like `selfies-ted`) are deprecated. IBM has migrated the models to the Hugging Face `transformers` ecosystem. 
+>
+> **How to run the example notebooks correctly (e.g., in VS Code):**
+> 
+> **1.** Open the example notebook (e.g., `selfies-ted-example.ipynb`) in VS Code and select your `fm4m` Python environment as the Kernel.
+> 
+> **2.** Delete the outdated `import load` cells and replace them with the modern Hugging Face implementation. Example for `selfies-ted`:
+> ```python
+> from transformers import AutoTokenizer, AutoModel
+> import selfies as sf
+> import torch
+>
+> # Load model and tokenizer directly from Hugging Face
+> tokenizer = AutoTokenizer.from_pretrained("ibm-research/materials.selfies-ted")
+> model = AutoModel.from_pretrained("ibm-research/materials.selfies-ted")
+>
+> # Example usage
+> smiles_list = ["CCO", "O=C=O"]
+> selfies_list = [sf.encoder(s).replace("][", "] [") for s in smiles_list]
+> tokens = tokenizer(selfies_list, return_tensors='pt', max_length=128, truncation=True, padding='max_length')
+>
+> with torch.no_grad():
+>     outputs = model.encoder(input_ids=tokens['input_ids'], attention_mask=tokens['attention_mask'])
+>     embeddings = outputs.last_hidden_state
+> 
+> print(embeddings.shape)
+> ```
 
 ### 3-2. FM4M-Kit (a wrapper toolkit)
-A more streamlined approach is to use FM4M-Kit, a wrapper toolkit that enables users to work with all models within a unified framework. The example notebook provides step-by-step instructions for feature extraction with each model, as well as for multi-modal integration.
+A more streamlined approach is to use FM4M-Kit, a wrapper toolkit that enables users to work with all models within a unified framework. 
 
 **Retrieving feature representations:**
-To extract representations from a specific model (e.g., `selfies-ted`), call the following api:
 ```python
 # Replace model parameter with any other model name supported by FM4M-Kit
-feature_selfies_train = fm4m.get_representation(model="selfies-ted", data=xtrain) #
+feature_selfies_train = fm4m.get_representation(model="selfies-ted", data=xtrain)
 ```
 
 **Downstream modeling and evaluation by a uni-modal model:**
-To evaluate the performance of a uni-modal model (e.g., `mhg-ged`), the following example demonstrates how to perform a regression task:
 ```python
 # Replace model and task parameters depending on your requirement
-score = fm4m.single_modal(model="MHG-GED", x_train=xtrain, y_train=ytrain, x_test=xtest, y_test=ytest, downstream_model="DefaultClassifier") #
+score = fm4m.single_modal(model="MHG-GED", x_train=xtrain, y_train=ytrain, x_test=xtest, y_test=ytest, downstream_model="DefaultClassifier")
 ```
 
 **Downstream modeling and evaluation by a multi-modal model:**
-For multi-modal model evaluation (e.g., `smi-ted`, `mhg-ged`, and `selfies-ted`), simply list the models as follows:
 ```python
 # Replace model_list and task parameters depending on your requirement
-score = fm4m.multi_modal(model_list=["SELFIES-TED","MHG-GED","SMI-TED"], x_train=xtrain, y_train=ytrain, x_test=xtest, y_test=ytest, downstream_model="DefaultClassifier") #
+score = fm4m.multi_modal(model_list=["SELFIES-TED","MHG-GED","SMI-TED"], x_train=xtrain, y_train=ytrain, x_test=xtest, y_test=ytest, downstream_model="DefaultClassifier")
 ```
 
 ### 3-3. Web UI (Local WSL 2 Setup)
 
-The easiest approach is to use FM4M-Kit through a web UI. While the official instance is available on Hugging Face Space, you can also run the interface locally. If you downloaded the `app.py` file to run the GUI on your WSL 2 environment, follow these specific steps to resolve common dependency and network access issues:
+The easiest approach is to use FM4M-Kit through a web UI. While the official instance is available on Hugging Face Space, you can also run the interface locally. If you downloaded the `app.py` file to run the GUI on your WSL 2 environment, follow these specific steps to resolve network access issues:
 
-**Step 1: Install UI-Specific Dependencies & Pin PyTorch Version**
-The default `requirements.txt` installs older dependencies. However, the Web UI relies on Hugging Face libraries that strictly require PyTorch 2.4 or higher. To avoid compilation errors on newer Python versions, pin PyTorch exactly to version `2.4.0`:
+**Step 1: Expose the Local Server to Windows**
+By default, Gradio apps run on `127.0.0.1` inside Linux, which your Windows browser might not be able to reach. You need to bind the server to `0.0.0.0` to expose it to your host machine.
 
-```bash
-# Install PyTorch 2.4.0 exactly to prevent torch-scatter build errors
-pip install "torch==2.4.0" torchvision torchaudio
-```
+Open the `app.py` file in your code editor and modify the final launch command at the bottom of the script:
 
-# Install UI packages (Gradio and RDKit)
-```bash
-pip install gradio rdkit
-```
-
-Step 2: Reinstall Torch-Scatter
-
-Because torch-scatter is strictly bound to your PyTorch version, you must reinstall it to match PyTorch 2.4.0. (The example below uses cu121 for CUDA 12.1. Replace it with your specific CUDA version like cu118 or cpu if necessary).
-
-⚠️ Note: Copy the command below exactly as plain text. Avoid copying rich-text link formatting to prevent terminal parsing errors.
-
-# Force reinstall torch-scatter pointing exactly to the 2.4.0 wheel
-```bash
-pip install --force-reinstall torch-scatter -f [https://data.pyg.org/whl/torch-2.4.0+cu121.html](https://data.pyg.org/whl/torch-2.4.0+cu121.html)
-```
-Step 3: Expose the Local Server to Windows
-By default, Gradio apps run on 127.0.0.1 inside Linux, which your Windows browser might not be able to reach. You need to bind the server to 0.0.0.0 to expose it to your host machine.
-
-Open the app.py file in your code editor and modify the final launch command at the bottom of the script:
-
-Python
+```python
 # Change this:
 demo.launch() 
 
 # To this:
 demo.launch(server_name="0.0.0.0")
-Step 4: Run the Application
-Since the application is built with Gradio, do not use Streamlit commands. Run the script directly with Python:
-
-⚠️Before running app upgrade xgboost
-```bash
-pip install --upgrade xgboost
 ```
+
+**Step 2: Run the Application**
+Since the application is built with Gradio, do not use Streamlit commands. Run the script directly with Python:
 
 ```bash
 python app.py
 ```
-Step 5: Access the UI
-Once the terminal indicates the server is running, open your Windows web browser and navigate to http://localhost:7860 (or the specific port displayed in your terminal output).
+
+**Step 3: Access the UI**
+Once the terminal indicates the server is running, open your Windows web browser and navigate to `http://localhost:7860` (or the specific port displayed in your terminal output).
