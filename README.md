@@ -1,4 +1,5 @@
-Para acessar o tutorial original da IBM: https://github.com/IBM/materials
+For the original IBM tutorial: https://github.com/IBM/materials
+For the huggingface updated models: https://huggingface.co/ibm-research
 
 # 🚀 Getting Started with FM4M (Pyenv / WSL 2 Edition)
 
