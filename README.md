@@ -84,33 +84,9 @@ Once your `pyenv` environment is fully set up and active, you have three main wa
 One way to utilize FM4M is by accessing each uni-modal model individually. Within each model’s folder (e.g., SMI-TED), you’ll find comprehensive documentation and example notebooks to guide effective usage. 
 
 > **🚨 CRITICAL UPDATE: Outdated GitHub Examples & Hugging Face Migration**
-> The original `.pkl` checkpoint files, `load.py`, and `embedding.py` scripts mentioned in the model-specific READMEs (like `selfies-ted`) are deprecated. IBM has migrated the models to the Hugging Face `transformers` ecosystem. 
->
-> **How to run the example notebooks correctly (e.g., in VS Code):**
-> 
-> **1.** Open the example notebook (e.g., `selfies-ted-example.ipynb`) in VS Code and select your `fm4m` Python environment as the Kernel.
-> 
-> **2.** Delete the outdated `import load` cells and replace them with the modern Hugging Face implementation. Example for `selfies-ted`:
-> ```python
-> from transformers import AutoTokenizer, AutoModel
-> import selfies as sf
-> import torch
->
-> # Load model and tokenizer directly from Hugging Face
-> tokenizer = AutoTokenizer.from_pretrained("ibm-research/materials.selfies-ted")
-> model = AutoModel.from_pretrained("ibm-research/materials.selfies-ted")
->
-> # Example usage
-> smiles_list = ["CCO", "O=C=O"]
-> selfies_list = [sf.encoder(s).replace("][", "] [") for s in smiles_list]
-> tokens = tokenizer(selfies_list, return_tensors='pt', max_length=128, truncation=True, padding='max_length')
->
-> with torch.no_grad():
->     outputs = model.encoder(input_ids=tokens['input_ids'], attention_mask=tokens['attention_mask'])
->     embeddings = outputs.last_hidden_state
-> 
-> print(embeddings.shape)
-> ```
+> Using the cloned repository wont just work for this method, so there will be tutorials for each model in this link:
+https://drive.google.com/drive/u/1/folders/1dR3DH-lETj8nkPWC20rGXdOe-ZGVHqIw
+
 
 ### 3-2. FM4M-Kit (a wrapper toolkit)
 A more streamlined approach is to use FM4M-Kit, a wrapper toolkit that enables users to work with all models within a unified framework. 
