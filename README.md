@@ -72,7 +72,7 @@ The FM4M project requires `torch-scatter`, which needs to be compiled specifical
 > **⚠️ Note:** Copy the command below exactly as plain text. Avoid copying rich-text link formatting to prevent terminal parsing errors.
 
 ```bash
-pip install --force-reinstall torch-scatter -f [https://data.pyg.org/whl/torch-2.4.0+cu121.html](https://data.pyg.org/whl/torch-2.4.0+cu121.html)
+pip install --force-reinstall torch-scatter -f https://data.pyg.org/whl/torch-2.4.0+cu121.html 
 ```
 
 ---
