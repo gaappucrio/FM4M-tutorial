@@ -33,7 +33,7 @@ pyenv local fm4m
 
 ### 4. Clone the original repository
 ```bash
-git clone [https://github.com/IBM/materials.git](https://github.com/IBM/materials.git)
+git clone https://github.com/IBM/materials.git
 cd materials
 ```
 
